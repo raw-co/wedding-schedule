@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">작가 수정</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin/photographers">목록</a>
+</div>
+
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/admin/photographers/{{ p.id }}/edit" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">이름</label>
+        <input name="name" class="form-control" value="{{ p.name }}" required>
+        <div class="form-text">이름을 바꾸면 스케줄의 메인/서브 이름도 같이 변경됩니다.</div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">전화번호</label>
+        <input name="phone" class="form-control" value="{{ p.phone or '' }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">성별</label>
+        <select name="gender" class="form-select">
+          <option value="" {% if not p.gender %}selected{% endif %}>-</option>
+          <option value="남자" {% if p.gender == "남자" %}selected{% endif %}>남자</option>
+          <option value="여자" {% if p.gender == "여자" %}selected{% endif %}>여자</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">역할</label>
+        <select name="role" class="form-select">
+          <option value="" {% if not p.role %}selected{% endif %}>-</option>
+          <option value="메인" {% if p.role == "메인" %}selected{% endif %}>메인</option>
+          <option value="서브" {% if p.role == "서브" %}selected{% endif %}>서브</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">주소(출발지)</label>
+        <input name="address" class="form-control" value="{{ p.address or '' }}">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">주 활동지역</label>
+        <input name="region" class="form-control" value="{{ p.region or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">차량보유</label>
+        <select name="has_car" class="form-select">
+          <option value="" {% if p.has_car is none %}selected{% endif %}>-</option>
+          <option value="보유" {% if p.has_car %}selected{% endif %}>보유</option>
+          <option value="미보유" {% if p.has_car is not none and not p.has_car %}selected{% endif %}>미보유</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">시작일</label>
+        <input name="start_date" type="date" class="form-control" value="{{ p.start_date or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">상태</label>
+        <select name="status" class="form-select">
+          <option value="활성" {% if p.status == '활성' %}selected{% endif %}>활성</option>
+          <option value="비활성" {% if p.status == '비활성' %}selected{% endif %}>비활성</option>
+        </select>
+      </div>
+
+      <div class="col-md-8">
+        <label class="form-label">메모</label>
+        <input name="memo" class="form-control" value="{{ p.memo or '' }}">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">비밀번호 변경(선택)</label>
+        <input name="new_password" class="form-control" placeholder="입력하면 변경됩니다">
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">저장</button>
+        <a class="btn btn-outline-secondary" href="/admin/photographers">취소</a>
+        <form method="post" action="/admin/photographers/{{ p.id }}/delete" class="ms-auto" onsubmit="return confirm('이 작가를 삭제할까요? (스케줄에 연결된 작가는 삭제가 막힙니다)')">
+          <button class="btn btn-outline-danger">삭제</button>
+        </form>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

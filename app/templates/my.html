@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<h4 class="mb-1">이번 주 내 스케줄</h4>
+<div class="text-muted mb-3">{{ start }} ~ {{ end }}</div>
+
+{% if schedules|length == 0 %}
+  <div class="alert alert-secondary">이번 주 일정이 없습니다.</div>
+{% else %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr class="text-muted">
+          <th>날짜</th>
+          <th>웨딩홀</th>
+          <th>신랑/신부</th>
+          <th>예식시간</th>
+          <th>내 역할</th>
+          <th>체크</th>
+          <th>도착사진</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in schedules %}
+          {% set chk = checkins_map.get(s.id) %}
+          <tr>
+            <td class="fw-semibold">{{ s.wedding_date }}</td>
+            <td>{{ s.venue }}</td>
+            <td>{{ s.couple or "-" }}</td>
+            <td>{{ s.wedding_time.strftime("%H:%M") if s.wedding_time else "-" }}</td>
+            <td>
+              {% if s.main_name == user.name %}
+                <span class="badge text-bg-primary">메인</span>
+              {% elif s.sub_name == user.name %}
+                <span class="badge text-bg-secondary">서브</span>
+              {% else %}
+                <span class="badge text-bg-light">-</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <form method="post" action="/check/wake" class="m-0">
+                  <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                  <button class="btn btn-outline-primary btn-sm" {% if s.wedding_date in day_woke_set %}disabled{% endif %}>
+                    {% if s.wedding_date in day_woke_set %}기상✓{% else %}기상{% endif %}
+                  </button>
+                </form>
+
+                <form method="post" action="/check/depart" class="m-0">
+                  <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                  <button class="btn btn-outline-dark btn-sm" {% if (s.wedding_date not in day_woke_set) or ((s.wedding_date, (s.venue or '').strip()) in arrived_venue_set) or ((s.wedding_date, (s.venue or '').strip()) in departed_venue_set) or (chk and chk.depart_time) %}disabled{% endif %}>
+                    {% if (s.wedding_date, (s.venue or '').strip()) in departed_venue_set %}출발✓{% else %}출발{% endif %}
+                  </button>
+                </form>
+
+                <form method="post" action="/check/arrive" enctype="multipart/form-data" class="m-0 d-flex gap-2 align-items-center">
+                  <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                  <input type="file" name="photo" accept="image/*" class="form-control form-control-sm" style="max-width: 180px"
+                         {% if ((s.wedding_date, (s.venue or '').strip()) in arrived_venue_set) or (not (chk and chk.depart_time)) or (chk and chk.arrive_time) %}disabled{% endif %} required>
+                  <button class="btn btn-primary btn-sm" {% if ((s.wedding_date, (s.venue or '').strip()) in arrived_venue_set) or (not (chk and chk.depart_time)) or (chk and chk.arrive_time) %}disabled{% endif %}>
+                    {% if (s.wedding_date, (s.venue or '').strip()) in arrived_venue_set %}도착✓{% else %}도착{% endif %}
+                  </button>
+                </form>
+
+                <div class="small text-muted">
+                  {% if chk and chk.wake_time %}기상 {{ chk.wake_time.strftime("%H:%M") }}{% endif %}
+                  {% if chk and chk.depart_time %} · 출발 {{ chk.depart_time.strftime("%H:%M") }}{% endif %}
+                  {% if chk and chk.arrive_time %} · 도착 {{ chk.arrive_time.strftime("%H:%M") }}{% endif %}
+                </div>
+              </div>
+            </td>
+            <td>
+              {% if chk and chk.arrive_photo_path %}
+                <a href="{{ chk.arrive_photo_path }}" target="_blank">보기</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-info mt-3">
+    <div class="fw-semibold mb-1">도착 버튼은 사진 첨부가 있어야 확정됩니다.</div>
+    <div class="small text-muted">흐름: 기상 → 출발 → (사진 첨부) 도착</div>
+  </div>
+{% endif %}
+{% endblock %}

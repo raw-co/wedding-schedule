@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">작가 목록</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin">관리자 홈</a>
+</div>
+
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between">
+      <h6 class="mb-2">작가 엑셀 업로드</h6>
+      <small class="text-muted">형식: no/촬영/성별/이름/시작일/연락처/거주지/주 촬영 지역/차량유무</small>
+    </div>
+    <form class="row g-2" method="post" action="/admin/photographers/import" enctype="multipart/form-data">
+      <div class="col-md-8">
+        <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-primary w-100" type="submit">업로드</button>
+      </div>
+      <div class="col-12">
+        <div class="form-text">동일한 이름이 이미 있으면 기존 작가 정보가 업데이트됩니다(아이디/비밀번호는 유지).</div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">작가 추가</h6>
+    <form class="row g-2" method="post" action="/admin/photographers/create">
+      <div class="col-md-3">
+        <input name="name" class="form-control" placeholder="이름" required>
+      </div>
+      <div class="col-md-3">
+        <input name="phone" class="form-control" placeholder="전화번호">
+      </div>
+      <div class="col-md-2">
+        <select name="gender" class="form-select">
+          <option value="">성별</option>
+          <option value="남자">남자</option>
+          <option value="여자">여자</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="role" class="form-select">
+          <option value="">역할</option>
+          <option value="메인">메인</option>
+          <option value="서브">서브</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input name="address" class="form-control" placeholder="주소(출발지)">
+      </div>
+      <div class="col-md-2">
+        <select name="has_car" class="form-select">
+          <option value="">차량보유</option>
+          <option value="보유">보유</option>
+          <option value="미보유">미보유</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <input name="start_date" type="date" class="form-control" placeholder="시작일">
+      </div>
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="활성">활성</option>
+          <option value="비활성">비활성</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <input name="region" class="form-control" placeholder="주 활동지역">
+      </div>
+      <div class="col-md-4">
+        <input name="memo" class="form-control" placeholder="메모">
+      </div>
+      <div class="col-md-2">
+        <input name="password" class="form-control" placeholder="초기 비번(기본 1234)" value="1234">
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100">추가</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr class="text-muted">
+        <th>#</th>
+        <th>이름</th>
+        <th>아이디</th>
+        <th>전화번호</th>
+        <th>주소</th>
+        <th>주 활동지역</th>
+        <th>차량보유</th>
+        <th>시작일</th>
+        <th>상태</th>
+        <th>메모</th>
+        <th>수정</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in photographers %}
+        <tr>
+          <td class="fw-semibold">{{ loop.index }}</td>
+          <td>{{ p.name }}</td>
+          <td class="text-muted">{{ p.username }}</td>
+          <td>{{ p.phone or "-" }}</td>
+          <td>{{ p.address or "-" }}</td>
+          <td>{{ p.region or "-" }}</td>
+          <td>
+            {% if p.has_car is none %}-{% elif p.has_car %}보유{% else %}미보유{% endif %}
+          </td>
+          <td>{{ p.start_date or "-" }}</td>
+          <td>{{ p.status }}</td>
+          <td>{{ p.memo or "-" }}</td>
+          <td><a class="btn btn-sm btn-primary" href="/admin/photographers/{{ loop.index }}/edit">수정</a></td>
+          <td>
+            <form method="post" action="/admin/photographers/{{ loop.index }}/delete" class="m-0" onsubmit="return confirm('이 작가를 삭제할까요? (스케줄에 연결된 작가는 삭제가 막힙니다)')">
+              <button class="btn btn-sm btn-outline-danger">삭제</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="text-muted small mt-3">
+  엑셀 업로드 시, 스케줄에 등장한 작가 이름은 자동으로 계정이 생성됩니다(기본 비번 1234).  
+  아이디(username)는 기본적으로 이름이며 중복 시 숫자가 붙습니다.
+</p>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">도착 사진 확인</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin">관리자 홈</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr class="text-muted">
+        <th>날짜</th>
+        <th>웨딩홀</th>
+        <th>예식</th>
+        <th>작가</th>
+        <th>사진</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for chk, s in items %}
+        <tr>
+          <td class="fw-semibold">{{ s.wedding_date }}</td>
+          <td>{{ s.venue }}</td>
+          <td>{{ s.wedding_time.strftime("%H:%M") if s.wedding_time else "-" }}</td>
+          <td>{{ chk.photographer_name }}</td>
+          <td>
+            {% if chk.arrive_photo_path %}
+              <a class="btn btn-sm btn-primary" href="{{ chk.arrive_photo_path }}" target="_blank">보기</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

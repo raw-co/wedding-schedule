@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">알림 모니터링</h4>
+  <div class="d-flex gap-2">
+    {% if only %}
+      <a class="btn btn-outline-secondary btn-sm" href="/admin/alerts">전체보기</a>
+    {% else %}
+      <a class="btn btn-danger btn-sm" href="/admin/alerts?only=1">알림만 보기</a>
+    {% endif %}
+    <a class="btn btn-outline-secondary btn-sm" href="/admin">관리자 홈</a>
+  </div>
+</div>
+
+<div class="alert alert-info">
+  <div class="fw-semibold mb-1">알림 기준(프로토타입)</div>
+  <div class="small text-muted">
+    • 도착목표시간 기준: 스케줄에 도착목표시간이 있으면 사용, 없으면 예식시간-2시간<br>
+    • 기상 마감: 도착목표-2시간 / 출발 마감: (이동시간 있으면) 도착목표-이동시간, 없으면 도착목표-60분<br>
+    • 같은 날 같은 웨딩홀은 출발/도착을 1번 처리하면 묶음으로 OK 처리
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr class="text-muted">
+        <th>날짜</th>
+        <th>웨딩홀</th>
+        <th>예식</th>
+        <th>도착목표</th>
+        <th>작가</th>
+        <th>역할</th>
+        <th>이동(분)</th>
+        <th>기상</th>
+        <th>출발</th>
+        <th>도착</th>
+        <th>마감</th>
+        <th>바로가기</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+        {% set s = r.schedule %}
+        <tr>
+          <td class="fw-semibold">{{ s.wedding_date }}</td>
+          <td>{{ s.venue }}</td>
+          <td>{{ s.wedding_time.strftime("%H:%M") if s.wedding_time else "-" }}</td>
+          <td>{{ r.arrival_target_dt.strftime("%H:%M") if r.arrival_target_dt else "-" }}</td>
+          <td>{{ r.name }}</td>
+          <td><span class="badge text-bg-light">{{ r.role }}</span></td>
+          <td>{{ r.travel_mins if r.travel_mins is not none else "-" }}</td>
+
+          <td>
+            {% if r.wake_ok %}
+              <span class="badge text-bg-success">완료</span>
+            {% elif r.wake_overdue %}
+              <span class="badge text-bg-danger">지연</span>
+            {% else %}
+              <span class="badge text-bg-secondary">대기</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.depart_ok %}
+              <span class="badge text-bg-success">완료</span>
+            {% elif r.depart_overdue %}
+              <span class="badge text-bg-danger">지연</span>
+            {% else %}
+              <span class="badge text-bg-secondary">대기</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.arrive_ok %}
+              <span class="badge text-bg-success">완료</span>
+            {% elif r.arrive_overdue %}
+              <span class="badge text-bg-danger">지연</span>
+            {% else %}
+              <span class="badge text-bg-secondary">대기</span>
+            {% endif %}
+          </td>
+
+          <td class="small text-muted">
+            기상 {{ r.wake_deadline.strftime("%H:%M") if r.wake_deadline else "-" }}<br>
+            출발 {{ r.depart_deadline.strftime("%H:%M") if r.depart_deadline else "-" }}
+          </td>
+          <td>
+            <a class="btn btn-sm btn-outline-primary" href="/admin/schedules/{{ s.id }}/edit">스케줄</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

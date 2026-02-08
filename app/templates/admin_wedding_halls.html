@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="m-0">웨딩홀 관리</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin">관리자 홈</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="post" action="/admin/wedding_halls" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">웨딩홀명</label>
+        <input class="form-control" name="name" placeholder="예: 안양더파티움" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">주소</label>
+        <input class="form-control" name="address" placeholder="도로명 주소 (선택)">
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-primary">추가</button>
+      </div>
+      <div class="col-12">
+        <small class="text-muted">
+          웨딩홀 주소를 여기서 관리하면, 같은 웨딩홀명으로 등록된 모든 스케줄의 주소가 자동으로 일괄 반영됩니다.
+        </small>
+      </div>
+    </form>
+  </div>
+</div>
+
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th style="width:60px;">#</th>
+      <th>웨딩홀</th>
+      <th>주소</th>
+      <th style="width:220px;">관리</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for h in halls %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td class="fw-semibold">{{ h.name }}</td>
+      <td class="text-muted">{{ h.address or "-" }}</td>
+      <td class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-primary" href="/admin/wedding_halls/{{ h.id }}/edit">수정</a>
+        <form method="post" action="/admin/wedding_halls/{{ h.id }}/delete" onsubmit="return confirm('삭제할까요? (스케줄은 삭제되지 않습니다)');">
+          <button class="btn btn-sm btn-outline-danger">삭제</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

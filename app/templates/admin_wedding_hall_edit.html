@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="m-0">웨딩홀 수정</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin/wedding_halls">목록</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/admin/wedding_halls/{{ hall.id }}/edit" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">웨딩홀명</label>
+        <input class="form-control" name="name" value="{{ hall.name }}" required>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">주소</label>
+        <input class="form-control" name="address" value="{{ hall.address or '' }}" placeholder="도로명 주소">
+        <div class="form-text">저장하면 같은 웨딩홀명인 모든 스케줄 주소가 DB에서 일괄 업데이트됩니다.</div>
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">저장</button>
+        <a class="btn btn-outline-secondary" href="/admin/wedding_halls">취소</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

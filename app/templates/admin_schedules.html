@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">스케줄</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin">관리자 홈</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">엑셀 업로드(import)</h6>
+    <form method="post" action="/admin/schedules/import" enctype="multipart/form-data" class="d-flex gap-2">
+      <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
+      <button class="btn btn-primary">업로드</button>
+    </form>
+    {% if request.query_params.get("imported") %}
+      <div class="alert alert-success mt-3 mb-0">
+        {{ request.query_params.get("imported") }}건 추가되었습니다(중복은 자동 제외).
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr class="text-muted">
+        <th>날짜</th>
+        <th>웨딩홀</th>
+        <th>신랑/신부</th>
+        <th>예식시간</th>
+        <th>메인</th>
+        <th>서브</th>
+        <th>수정</th>
+          <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in schedules %}
+        <tr>
+          <td class="fw-semibold">{{ s.wedding_date }}</td>
+          <td>{{ s.venue }}</td>
+          <td>{{ s.couple or "-" }}</td>
+          <td>{{ s.wedding_time.strftime("%H:%M") if s.wedding_time else "-" }}</td>
+          <td>{{ s.main_name or "-" }}</td>
+          <td>{{ s.sub_name or "-" }}</td>
+          <td><a class="btn btn-sm btn-primary" href="/admin/schedules/{{ s.id }}/edit">수정</a></td>
+          <td>
+            <form method="post" action="/admin/schedules/{{ s.id }}/delete" class="m-0" onsubmit="return confirm('이 스케줄을 삭제할까요? (연결된 체크도 같이 삭제됩니다)')">
+              <button class="btn btn-sm btn-outline-danger">삭제</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+</div>
+
+<script>
+(function(){
+  const selectAll = document.getElementById('selectAll');
+  const btn = document.getElementById('bulkDeleteBtn');
+  function checks(){ return Array.from(document.querySelectorAll('.rowCheck')); }
+  function update(){
+    const cs = checks();
+    const any = cs.some(c => c.checked);
+    if(btn) btn.disabled = !any;
+    if(selectAll && cs.length){
+      const all = cs.every(c => c.checked);
+      const none = cs.every(c => !c.checked);
+      selectAll.indeterminate = !all && !none;
+      selectAll.checked = all;
+    }
+  }
+  if(selectAll){
+    selectAll.addEventListener('change', () => {
+      checks().forEach(c => c.checked = selectAll.checked);
+      update();
+    });
+  }
+  document.addEventListener('change', (e) => {
+    if(e.target && e.target.classList && e.target.classList.contains('rowCheck')) update();
+  });
+  update();
+})();
+</script>
+
+{% endblock %}

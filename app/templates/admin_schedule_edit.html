@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h4 class="m-0">스케줄 수정</h4>
+  <a class="btn btn-outline-secondary btn-sm" href="/admin/schedules">목록</a>
+</div>
+
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="/admin/schedules/{{ s.id }}/edit" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">날짜</label>
+        <input name="wedding_date" type="date" class="form-control" value="{{ s.wedding_date }}" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">예식시간</label>
+        <input name="wedding_time" class="form-control" value="{{ s.wedding_time.strftime('%H:%M') if s.wedding_time else '' }}" placeholder="11:00">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">웨딩홀</label>
+        <input name="venue" class="form-control" value="{{ s.venue }}" list="venueList" required>
+        <datalist id="venueList">
+          {% for v in venues %}
+            <option value="{{ v.name }}"></option>
+          {% endfor %}
+        </datalist>
+        <div class="form-text">웨딩홀은 기존 목록에서 선택 가능(처음 한 번만 주소 입력하면 재사용)</div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">웨딩홀 주소</label>
+        <input name="venue_address" class="form-control" value="{{ s.venue_address or '' }}" placeholder="도로명 주소">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">촬영시작시간</label>
+        <input name="shoot_start_time" class="form-control" value="{{ s.shoot_start_time.strftime('%H:%M') if s.shoot_start_time else '' }}" placeholder="10:00">
+        <div class="form-text">비워두면 예식시간 1시간 전으로 자동 계산</div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">도착목표시간</label>
+        <input name="arrival_target_time" class="form-control" value="{{ s.arrival_target_time.strftime('%H:%M') if s.arrival_target_time else '' }}" placeholder="08:50">
+        <div class="form-text">예: 예식 11:00이면 08:50처럼</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">신랑/신부</label>
+        <input name="couple" class="form-control" value="{{ s.couple or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">메인 작가</label>
+        <input name="main_name" class="form-control" value="{{ s.main_name or '' }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">서브 작가</label>
+        <input name="sub_name" class="form-control" value="{{ s.sub_name or '' }}">
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">저장</button>
+        <a class="btn btn-outline-secondary" href="/admin/schedules">취소</a>
+        <form method="post" action="/admin/schedules/{{ s.id }}/delete" class="ms-auto" onsubmit="return confirm('이 스케줄을 삭제할까요? (연결된 체크도 같이 삭제됩니다)')">
+          <button class="btn btn-outline-danger">삭제</button>
+        </form>
+      </div>
+
+      <div class="col-12">
+        <div class="alert alert-info mb-0">
+          스케줄에 새 작가 이름을 입력하면 해당 작가 계정이 없을 경우 자동 생성됩니다(초기 비번 1234).
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
