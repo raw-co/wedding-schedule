@@ -118,7 +118,7 @@
           <td>{{ p.start_date or "-" }}</td>
           <td>{{ p.status }}</td>
           <td>{{ p.memo or "-" }}</td>
-          <td><a class="btn btn-sm btn-primary" href="/admin/photographers/{{ loop.index }}/edit">수정</a></td>
+          <td><a class="btn btn-sm btn-primary" href="/admin/photographers/{{ p.id }}/edit">수정</a></td>
           <td>
             <form method="post" action="/admin/photographers/{{ loop.index }}/delete" class="m-0" onsubmit="return confirm('이 작가를 삭제할까요? (스케줄에 연결된 작가는 삭제가 막힙니다)')">
               <button class="btn btn-sm btn-outline-danger">삭제</button>
