@@ -8,7 +8,10 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
 from datetime import date, timedelta
 
-import os, tempfile, uuid
+import os
+import tempfile
+import uuid
+import time
 
 from .db import init_db, get_session
 from .models import Photographer, Schedule, Checkin, RouteEstimate, Venue, WeddingHall
