@@ -21,6 +21,11 @@ from .auth import hash_password
 from .db import get_session
 from .models import Photographer
 
+app = FastAPI(title="Wedding Schedule App")
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+
+from sqlmodel import select  # 이미 import 돼있으면 추가 안 해도 됨
+
 @app.get("/__reset_admin_password")
 def reset_admin_password():
     with get_session() as session:
@@ -31,14 +36,11 @@ def reset_admin_password():
         if not admin:
             return {"error": "admin user not found"}
 
-        admin.password_hash = hash_password("0000")
+        admin.password_hash = hash_password("새비밀번호123")
         session.add(admin)
         session.commit()
 
     return {"ok": True}
-
-app = FastAPI(title="Wedding Schedule App")
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 
 # 업로드(도착사진) 임시 저장 폴더: 운영에서는 환경변수로 바꿀 수 있음
