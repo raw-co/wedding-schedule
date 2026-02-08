@@ -36,7 +36,7 @@ def reset_admin_password():
         if not admin:
             return {"error": "admin user not found"}
 
-        admin.password_hash = hash_password("새비밀번호123")
+        admin.password_hash = hash_password("0000")
         session.add(admin)
         session.commit()
 
