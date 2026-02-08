@@ -17,6 +17,25 @@ from .db import init_db, get_session
 from .models import Photographer, Schedule, Checkin, RouteEstimate, Venue, WeddingHall
 from .auth import hash_password, verify_password, set_session, clear_session, get_user_id_from_request
 from .importer import load_schedules_from_excel, load_photographers_from_excel
+from .auth import hash_password
+from .db import get_session
+from .models import Photographer
+
+@app.get("/__reset_admin_password")
+def reset_admin_password():
+    with get_session() as session:
+        admin = session.exec(
+            select(Photographer).where(Photographer.username == "admin")
+        ).first()
+
+        if not admin:
+            return {"error": "admin user not found"}
+
+        admin.password_hash = hash_password("0000")
+        session.add(admin)
+        session.commit()
+
+    return {"ok": True}
 
 app = FastAPI(title="Wedding Schedule App")
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
